@@ -24,7 +24,7 @@ SECRET_KEY = '8ctx4pa10@+zug-nmq+#26yaz+of)kixp-elgx--*yih!k*wod'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["18.222.253.154"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -88,10 +88,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": "petapp",
-        "USER": "postgres",
+        "USER": "hashiq",
         "PASSWORD": "3134",
         "HOST": "localhost",
-        "PORT": "",
+        "PORT": "5432",
     }
 }
 

@@ -41,7 +41,7 @@ class UserPetViewset(generics.ListAPIView):
 
 #all petdata view
 class AllPetViewset(generics.ListAPIView):
-    # authentication_classes = [FirebaseAuthentication]
+    authentication_classes = [FirebaseAuthentication]
     serializer_class = createPetSerializer
 
     def get_queryset(self):
@@ -90,7 +90,7 @@ class SnippetDetail(APIView):
     Retrieve, update or delete a snippet instance.
     
     """
-    # authentication_classes = [FirebaseAuthentication]  
+    authentication_classes = [FirebaseAuthentication]  
     serializer_class = createPetSerializer
     def get_object(self, pk):
         try:
@@ -118,6 +118,7 @@ class SnippetDetail(APIView):
 
   
 class SearchList(generics.ListAPIView):
+    authentication_classes = [FirebaseAuthentication]  
     serializer_class = createPetSerializer
 
     def get_queryset(self):
