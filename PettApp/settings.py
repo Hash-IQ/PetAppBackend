@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     # apps
     'account',
     'petdata',
-    
+    'location',
     # Libraries #
     'rest_framework',
     'django_extensions',
