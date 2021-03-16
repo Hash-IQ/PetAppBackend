@@ -4,6 +4,6 @@ from . import views
 
 app_name = 'account'
 urlpatterns = [
-    path('name',views.UpdateNameView.as_view()),
-   
+    path('name', views.UpdateNameView.as_view()),
+    path('phone', views.mobileSave.as_view()),
 ]

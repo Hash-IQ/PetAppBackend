@@ -11,8 +11,9 @@ from .serializers import createPetSerializer, updatePetSerializer
 from PettApp.authentication import FirebaseAuthentication
 from django.http import Http404, HttpResponse
 from django.contrib.gis.geos import Point
-from rest_framework.views  import APIView
+from rest_framework.views import APIView
 from django.contrib.gis.measure import D, Distance
+from _datetime import timedelta
 
 
 #petdata creation
@@ -21,12 +22,12 @@ class CreatePetViewset(generics.ListCreateAPIView):
     authentication_classes = [FirebaseAuthentication]
 
     serializer_class = createPetSerializer
-    
+
     def perform_create(self, serializer):
         latitude = float(serializer.initial_data['latitude'])
         longitude = float(serializer.initial_data['longitude'])
-        user_location = Point(x=longitude, y=latitude, srid=4326)
-        serializer.save(owner=self.request.user,coordinates=user_location)
+        user_location = Point(x=latitude, y=longitude, srid=4326)
+        serializer.save(owner=self.request.user, coordinates=user_location)
 
 
 #user petdata view
@@ -57,11 +58,14 @@ class petCategoryView(generics.ListAPIView):
     def get_queryset(self):
         latitude = self.request.query_params.get('latitude', )
         longitude = self.request.query_params.get('longitude', )
-        _x=float(latitude)
-        _y=float(longitude)
-        location = Point(_x,_y,srid=4326)
+        _x = float(latitude)
+        _y = float(longitude)
+        location = Point(_x, _y, srid=4326)
         category = self.request.query_params.get('category', )
-        return createPet.objects.filter(pet_category=category,coordinates__distance_lte=(location, D(km=100)))
+        return createPet.objects.filter(pet_category=category,
+                                        coordinates__distance_lte=(location,
+                                                                   D(km=100)))
+
 
     # def post(self, request):
     #     category = request.POST.get("category")
@@ -75,14 +79,14 @@ class locationBasedView(generics.ListAPIView):
         print(latitude)
         longitude = self.request.query_params.get('longitude', )
         print(type(longitude))
-        
-        _x=float(latitude)
-        _y=float(longitude)
-        location = Point(_x,_y,srid=4326)
+
+        _x = float(latitude)
+        _y = float(longitude)
+        location = Point(_x, _y, srid=4326)
         print(location)
 
-        return createPet.objects.filter(coordinates__distance_lte=(location, D(km=100)))
-
+        return createPet.objects.filter(coordinates__distance_lte=(location,
+                                                                   D(km=50)))
 
 
 class SnippetDetail(APIView):
@@ -90,8 +94,9 @@ class SnippetDetail(APIView):
     Retrieve, update or delete a snippet instance.
     
     """
-    authentication_classes = [FirebaseAuthentication]  
+    authentication_classes = [FirebaseAuthentication]
     serializer_class = createPetSerializer
+
     def get_object(self, pk):
         try:
             return createPet.objects.get(id=pk)
@@ -101,14 +106,13 @@ class SnippetDetail(APIView):
     def get(self, request, pk, format=None):
         snippet = self.get_object(pk)
         snippet.delete()
-        message = { 
-                "message": "Successfully Deleted ",
-                "status": str(status.HTTP_204_NO_CONTENT)
-                }
-        return Response(message,status.HTTP_204_NO_CONTENT)
-      
+        message = {
+            "message": "Successfully Deleted ",
+            "status": str(status.HTTP_204_NO_CONTENT)
+        }
+        return Response(message, status.HTTP_204_NO_CONTENT)
 
-    def post(self, request, pk, format=None,many=False):
+    def post(self, request, pk, format=None, many=False):
         saled = self.get_object(pk)
         serializer = updatePetSerializer(saled, data=request.data)
         if serializer.is_valid():
@@ -116,9 +120,9 @@ class SnippetDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-  
+
 class SearchList(generics.ListAPIView):
-    authentication_classes = [FirebaseAuthentication]  
+    authentication_classes = [FirebaseAuthentication]
     serializer_class = createPetSerializer
 
     def get_queryset(self):
@@ -126,11 +130,24 @@ class SearchList(generics.ListAPIView):
         print(latitude)
         longitude = self.request.query_params.get('longitude', )
         print(type(longitude))
-        
-        _x=float(latitude)
-        _y=float(longitude)
-        location = Point(_x,_y,srid=4326)
+
+        _x = float(latitude)
+        _y = float(longitude)
+        location = Point(_x, _y, srid=4326)
         print(location)
         category = self.request.query_params.get('petName', )
-        return createPet.objects.filter(pet_name__contains=category,coordinates__distance_lte=(location, D(km=100)))
-    
+        return createPet.objects.filter(pet_name__contains=category,
+                                        coordinates__distance_lte=(location,
+                                                                   D(km=100)))
+
+
+class croneJob(APIView):
+    def get(self, request, format=None):
+
+        message = {
+            "message": "Cron job testing ",
+            "status": str(status.HTTP_200_OK)
+        }
+        createPet.objects.filter(created_at__lte=datetime.datetime.now() -
+                                 timedelta(days=30)).delete()
+        return Response(message, status.HTTP_200_OK)

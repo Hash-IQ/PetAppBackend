@@ -88,7 +88,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": "petapp",
-        "USER": "hashiq",
+        "USER": "postgres",
         "PASSWORD": "3134",
         "HOST": "localhost",
         "PORT": "5432",
